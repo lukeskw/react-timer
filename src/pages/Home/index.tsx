@@ -16,7 +16,7 @@ const newCycleFormValidationSchema = z.object({
   task: z.string().min(1, 'Please, provide a task'),
   minutesAmount: z
     .number()
-    .min(1, 'Cycle must not be less than 5 minutes')
+    .min(5, 'Cycle must not be less than 5 minutes')
     .max(60, 'Cycle must not exceed 60 minutes'),
 })
 
