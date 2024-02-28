@@ -1,5 +1,6 @@
-import { ReactNode, createContext, useState } from 'react'
+import { ReactNode, createContext, useReducer, useState } from 'react'
 import { Cycle } from '../@types/cycles'
+import { ActionTypes, cyclesReducer } from '../reducers/cycles'
 
 interface CreateCycleData {
   task: string
@@ -26,25 +27,22 @@ export const CyclesContext = createContext({} as CyclesContextType)
 export function CyclesContextProvider({
   children,
 }: CyclesContextProviderProps) {
-  const [cycles, setCycles] = useState<Cycle[]>([])
-  const [activeCycleId, setActiveCycleId] = useState<string | null>(null)
+  const [cyclesState, dispatch] = useReducer(cyclesReducer, {
+    cycles: [],
+    activeCycleId: null,
+  })
+
   const [totalSecondsPassed, setTotalSecondsPassed] = useState(0)
+
+  const { cycles, activeCycleId } = cyclesState
 
   const activeCycle = cycles.find((cycle) => cycle.id === activeCycleId)
 
   function markCurrentCycleAsFinished() {
-    setCycles((state) =>
-      state.map((cycle) => {
-        if (cycle.id === activeCycleId) {
-          return {
-            ...cycle,
-            finishedDate: new Date(),
-          }
-        }
-
-        return cycle
-      }),
-    )
+    dispatch({
+      type: ActionTypes.MARK_CURRENT_CYCLE_AS_FINISHED,
+      payload: { activeCycleId },
+    })
   }
 
   function setSecondsPassed(seconds: number) {
@@ -59,26 +57,18 @@ export function CyclesContextProvider({
       startDate: new Date(),
     }
 
-    setCycles((prev) => [...prev, newCycle])
-    setActiveCycleId(newCycle.id)
+    dispatch({
+      type: ActionTypes.ADD_NEW_CYCLE,
+      payload: { newCycle },
+    })
     setTotalSecondsPassed(0)
   }
 
   function stopCurrentCycle() {
-    setCycles((state) =>
-      state.map((cycle) => {
-        if (cycle.id === activeCycleId) {
-          return {
-            ...cycle,
-            interruptedDate: new Date(),
-          }
-        }
-
-        return cycle
-      }),
-    )
-
-    setActiveCycleId(null)
+    dispatch({
+      type: ActionTypes.STOP_CURRENT_CYCLE,
+      payload: { activeCycleId },
+    })
   }
   return (
     <CyclesContext.Provider
