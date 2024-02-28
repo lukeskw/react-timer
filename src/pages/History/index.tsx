@@ -2,6 +2,8 @@ import { useContext } from 'react'
 import { CyclesContext } from '../../contexts/CyclesContext'
 import { HistoryContainer, HistoryList, Status } from './styles'
 
+import { formatDistanceToNow } from 'date-fns'
+
 export function History() {
   const { cycles } = useContext(CyclesContext)
 
@@ -21,54 +23,30 @@ export function History() {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>React</td>
-              <td>5 minutes</td>
-              <td>1 month ago</td>
-              <td>
-                <Status statusColor="yellow">Ongoing</Status>
-              </td>
-            </tr>
-            <tr>
-              <td>Next.js</td>
-              <td>5 minutes</td>
-              <td>1 month ago</td>
-              <td>
-                <Status statusColor="red">Suspended</Status>
-              </td>
-            </tr>
-            <tr>
-              <td>Gatsby</td>
-              <td>5 minutes</td>
-              <td>1 month ago</td>
-              <td>
-                <Status statusColor="green">Completed</Status>
-              </td>
-            </tr>
-            <tr>
-              <td>Angular</td>
-              <td>5 minutes</td>
-              <td>1 month ago</td>
-              <td>
-                <Status statusColor="red">Suspended</Status>
-              </td>
-            </tr>
-            <tr>
-              <td>Nest</td>
-              <td>5 minutes</td>
-              <td>1 month ago</td>
-              <td>
-                <Status statusColor="red">Suspended</Status>
-              </td>
-            </tr>
-            <tr>
-              <td>Laravel</td>
-              <td>5 minutes</td>
-              <td>1 month ago</td>
-              <td>
-                <Status statusColor="yellow">Ongoing</Status>
-              </td>
-            </tr>
+            {cycles.map((cycle) => {
+              return (
+                <tr key={cycle.id}>
+                  <td>{cycle.task}</td>
+                  <td>{cycle.minutesAmount} minutes</td>
+                  <td>
+                    {formatDistanceToNow(cycle.startDate, {
+                      addSuffix: true,
+                    })}
+                  </td>
+                  <td>
+                    {cycle.finishedDate && (
+                      <Status statusColor="green">Finished</Status>
+                    )}
+                    {cycle.interruptedDate && (
+                      <Status statusColor="red">Suspended</Status>
+                    )}
+                    {!cycle.finishedDate && !cycle.interruptedDate && (
+                      <Status statusColor="yellow">Ongoing</Status>
+                    )}
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </HistoryList>
